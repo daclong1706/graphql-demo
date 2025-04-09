@@ -3,20 +3,15 @@ export const typeDefs = `#graphql
         id: ID!
         name: String!
         genre: String
-        description: String
-        publicationDate: String
         author: Author
         publisher: Publisher
-        isbn: String
-        price: Float
-        stockQuantity: Int
         coverImage: String
     }
 
     type Author {
         id: ID!
         name: String!
-        age: Int
+        yearOfBirth: Int
         books: [Book]
     }
 
@@ -40,19 +35,14 @@ export const typeDefs = `#graphql
         addBook(
             name: String!,
             genre: String,
-            description: String,
-            publicationDate: String,
             authorId: ID!,
             publisherId: ID!,
-            isbn: String,
-            price: Float,
-            stockQuantity: Int,
             coverImage: String
         ): Book
 
         addAuthor(
             name: String!,
-            age: Int
+            yearOfBirth: Int
         ): Author
 
         addPublisher(

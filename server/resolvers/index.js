@@ -52,39 +52,47 @@
 //   },
 // ];
 
-import { Author, Book, Publisher } from "../models/index.js";
-
 export const resolvers = {
   Query: {
-    books: async () => await Book.find(),
-    book: async (_, { id }) => await Book.findById(id),
-    authors: async () => await Author.find(),
-    author: async (_, { id }) => await Author.findById(id),
-    publishers: async () => await Publisher.find(),
-    publisher: async (_, { id }) => await Publisher.findById(id),
+    books: async (_, __, { bookService }) => await bookService.getBooks(),
+    book: async (_, { id }, { bookService }) =>
+      await bookService.getBookById(id),
+
+    authors: async (_, __, { authorService }) =>
+      await authorService.getAuthors(),
+    author: async (_, { id }, { authorService }) =>
+      await authorService.getAuthorById(id),
+
+    publishers: async (_, __, { publisherService }) =>
+      await publisherService.getPublishers(),
+    publisher: async (_, { id }, { publisherService }) =>
+      await publisherService.getPublisherById(id),
   },
   Mutation: {
-    addBook: async (_, args) => {
-      const newBook = new Book(args);
-      return await newBook.save();
-    },
-    addAuthor: async (_, args) => {
-      const newAuthor = new Author(args);
-      return await newAuthor.save();
-    },
-    addPublisher: async (_, args) => {
-      const newPublisher = new Publisher(args);
-      return await newPublisher.save();
+    addBook: async (_, args, { bookService }) =>
+      await bookService.addBook(args),
+    addAuthor: async (_, args, { authorService }) =>
+      await authorService.addAuthor(args),
+    addPublisher: async (_, args, { publisherService }) => {
+      await publisherService.addPublisher(args);
     },
   },
   Book: {
-    author: async (book) => await Author.findById(book.author),
-    publisher: async (book) => await Publisher.findById(book.publisher),
+    author: async (book, _, { authorService }) => {
+      return await authorService.getAuthorById(book.authorId);
+    },
+    publisher: async (book, _, { publisherService }) => {
+      return await publisherService.getPublisherById(book.publisherId);
+    },
   },
   Author: {
-    books: async (author) => await Book.find({ author: author.id }),
+    books: async (author, _, { bookService }) => {
+      return await bookService.getBooksByAuthor(author.id);
+    },
   },
   Publisher: {
-    books: async (publisher) => await Book.find({ publisher: publisher.id }),
+    books: async (publisher, _, { bookService }) => {
+      return await bookService.getBooksByPublisher(publisher.id);
+    },
   },
 };
