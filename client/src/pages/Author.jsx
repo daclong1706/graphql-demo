@@ -9,7 +9,8 @@ import { FaPlusSquare, FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import PaginationComponent from "../components/ui/PaginationComponent";
 import { useQuery } from "@apollo/client";
-import { GET_BOOKS } from "../graphql/bookQueries";
+import  {GET_AUTHORS} from"../graphql/authorQueries.js"
+
 
 const Author = () => {
   const [sortColumn, setSortColumn] = useState(""); // Cột để sắp xếp
@@ -18,13 +19,13 @@ const Author = () => {
   const [searchTerm, setSearchTerm] = useState(""); // Giá trị tìm kiếm
 
   const itemsPerPage = 10;
-  const { loading, error, data } = useQuery(GET_BOOKS);
+  const { loading, error, data } = useQuery(GET_AUTHORS);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const filteredBooks = data.books.filter((book) =>
-    book.name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredBooks = data.authors.filter((author) =>
+    author.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   // Sắp xếp danh sách users
