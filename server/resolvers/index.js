@@ -76,6 +76,18 @@ export const resolvers = {
     addPublisher: async (_, args, { publisherService }) => {
       await publisherService.addPublisher(args);
     },
+
+    updatePublisher: async (
+      _,
+      { id, name, location },
+      { publisherService }
+    ) => {
+      return await publisherService.updatePublisher(id, { name, location });
+    },
+
+    deletePublisher: async (_, { id }, { publisherService }) => {
+      return await publisherService.deletePublisher(id);
+    },
   },
   Book: {
     author: async (book, _, { authorService }) => {
