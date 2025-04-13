@@ -49,5 +49,31 @@ export const typeDefs = `#graphql
             name: String!,
             location: String
         ): Publisher
+
+        updateBook(
+            id: ID!,
+            name: String,
+            genre: String,
+            authorId: ID,
+            publisherId: ID,
+            coverImage: String
+        ): Book
+
+        updateAuthor(
+            id: ID!,
+            name: String,
+            yearOfBirth: Int
+        ): Author
+
+        updatePublisher(
+            id: ID!,
+            name: String,
+            location: String
+        ): Publisher
+
+        deleteBook(id: ID!): Book
+        deleteAuthor(id: ID!): Author
+        deletePublisher(id: ID!): Publisher
+
     }
 `;

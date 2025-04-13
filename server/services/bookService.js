@@ -5,6 +5,12 @@ const bookService = {
     const newBook = new Book(args);
     return await newBook.save();
   },
+  updateBook: async (id, updateData) => {
+    return await Book.findByIdAndUpdate(id, updateData, { new: true });
+  },
+  deleteBook: async (id) => {
+    return await Book.findByIdAndDelete(id);
+  },
   getBooks: async () => await Book.find(),
   getBookById: async (id) => await Book.findById(id),
   getBooksByAuthor: async (authorId) => {

@@ -76,6 +76,44 @@ export const resolvers = {
     addPublisher: async (_, args, { publisherService }) => {
       await publisherService.addPublisher(args);
     },
+
+    updateBook: async (
+      _,
+      { id, name, genre, authorId, publisherId, coverImage },
+      { bookService }
+    ) => {
+      return await bookService.updateBook(id, {
+        name,
+        genre,
+        authorId,
+        publisherId,
+        coverImage,
+      });
+    },
+
+    updateAuthor: async (_, { id, name, yearOfBirth }, { authorService }) => {
+      return await authorService.updateAuthor(id, { name, yearOfBirth });
+    },
+
+    updatePublisher: async (
+      _,
+      { id, name, location },
+      { publisherService }
+    ) => {
+      return await publisherService.updatePublisher(id, { name, location });
+    },
+
+    deleteBook: async (_, { id }, { bookService }) => {
+      return await bookService.deleteBook(id);
+    },
+
+    deleteAuthor: async (_, { id }, { authorService }) => {
+      return await authorService.deleteAuthor(id);
+    },
+
+    deletePublisher: async (_, { id }, { publisherService }) => {
+      return await publisherService.deletePublisher(id);
+    },
   },
   Book: {
     author: async (book, _, { authorService }) => {

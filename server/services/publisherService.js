@@ -5,6 +5,12 @@ const publisherService = {
     const publisher = new Publisher(args);
     return await publisher.save();
   },
+  updatePublisher: async (id, updateData) => {
+    return await Publisher.findByIdAndUpdate(id, updateData, { new: true });
+  },
+  deletePublisher: async (id) => {
+    return await Publisher.findByIdAndDelete(id);
+  },
   getPublishers: async () => await Publisher.find(),
   getPublisherById: async (id) => await Publisher.findById(id),
 };
