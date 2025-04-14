@@ -7,6 +7,7 @@ import client from "./graphql/apolloClient";
 import { ApolloProvider } from "@apollo/client";
 import AddBook from "./pages/AddBook";
 import BookDetail from "./pages/BookDetail";
+import AddAuthor from "./pages/AddAuthor";
 
 const App = () => {
   return (
@@ -19,6 +20,7 @@ const App = () => {
             <Route path="publisher" element={<Publisher />} />
             <Route path="book/:id" element={<BookDetail />} />
             <Route path="add-book" element={<AddBook />} />
+            <Route path="author/add-author" element={<AddAuthor />} />
           </Route>
         </Routes>
       </BrowserRouter>
