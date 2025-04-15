@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
-import { GET_BOOK_BY_ID } from "../graphql/bookQueries";
+import { GET_BOOK_BY_ID } from "../graphql/book";
 import { useNavigate, useParams } from "react-router-dom";
 
 const BookDetail = () => {

@@ -6,6 +6,7 @@ export const typeDefs = `#graphql
         author: Author
         publisher: Publisher
         coverImage: String
+        description: String
     }
 
     type Author {
@@ -38,6 +39,7 @@ export const typeDefs = `#graphql
             authorId: ID!,
             publisherId: ID!,
             coverImage: String
+            description: String
         ): Book
 
         addAuthor(
@@ -57,6 +59,7 @@ export const typeDefs = `#graphql
             authorId: ID,
             publisherId: ID,
             coverImage: String
+            description: String
         ): Book
 
         updateAuthor(

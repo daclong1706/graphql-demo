@@ -79,7 +79,7 @@ export const resolvers = {
 
     updateBook: async (
       _,
-      { id, name, genre, authorId, publisherId, coverImage },
+      { id, name, genre, authorId, publisherId, coverImage, description },
       { bookService }
     ) => {
       return await bookService.updateBook(id, {
@@ -88,6 +88,7 @@ export const resolvers = {
         authorId,
         publisherId,
         coverImage,
+        description,
       });
     },
 

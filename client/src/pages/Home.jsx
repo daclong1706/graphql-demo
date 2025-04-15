@@ -1,87 +1,44 @@
-import {
-  EyeIcon,
-  PencilSquareIcon,
-  TrashIcon,
-} from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
-import { AiOutlineSearch } from "react-icons/ai";
-import { FaPlusSquare, FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import PaginationComponent from "../components/ui/PaginationComponent";
 import { useQuery } from "@apollo/client";
-import { GET_BOOKS } from "../graphql/bookQueries";
-import BookDetail from "./BookDetail";
+import { EyeIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
+import { AiOutlineSearch } from "react-icons/ai";
+import { FaPlusSquare } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import DeleteButton from "../components/modal/DeleteButton";
+import PaginationComponent from "../components/ui/PaginationComponent";
+import SortIcon from "../components/ui/SortIcon";
+import { DELETE_BOOK, GET_BOOKS } from "../graphql/book";
+import useDelete from "../hooks/useDelete";
+import { useTable } from "../hooks/useTable";
+import { useState } from "react";
+import BookModal from "../components/modal/BookModal";
+import NoImage from "../assets/no-image.png";
 
 const Home = () => {
-  const [sortColumn, setSortColumn] = useState(""); // Cột để sắp xếp
-  const [sortDirection, setSortDirection] = useState(""); // Hướng sắp xếp (asc/desc/unsorted)
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const [searchTerm, setSearchTerm] = useState(""); // Giá trị tìm kiếm
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedBook, setSelectedBook] = useState(null);
 
-  const itemsPerPage = 10;
   const { loading, error, data } = useQuery(GET_BOOKS);
+  const itemsPerPage = 10;
+  const { handleDelete } = useDelete(DELETE_BOOK, "books", "Book");
+  const handleDeleteBook = (id) => {
+    handleDelete(id);
+  };
+
+  const {
+    paginatedData: books,
+    totalItems,
+    currentPage,
+    setCurrentPage,
+    searchTerm,
+    setSearchTerm,
+    handleSort,
+    sortColumn,
+    sortDirection,
+  } = useTable(data?.books || [], itemsPerPage);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-
-  const filteredBooks = data.books.filter((book) =>
-    book.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Sắp xếp danh sách users
-  const sortedBooks = sortDirection
-    ? [...filteredBooks].sort((a, b) => {
-        const valueA = a[sortColumn]?.toLowerCase?.() || a[sortColumn];
-        const valueB = b[sortColumn]?.toLowerCase?.() || b[sortColumn];
-
-        if (sortDirection === "asc") {
-          return valueA > valueB ? 1 : -1;
-        } else if (sortDirection === "desc") {
-          return valueA < valueB ? 1 : -1;
-        }
-        return 0; // Không sắp xếp nếu ở trạng thái unsorted
-      })
-    : filteredBooks;
-
-  // Cắt danh sách users theo trang hiện tại
-  const paginatedBooks = sortedBooks.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalItems = sortedBooks.length;
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
-  };
-
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      // Nếu đã click cùng cột, thay đổi hướng sắp xếp
-      if (sortDirection === "asc") {
-        setSortDirection("desc");
-      } else if (sortDirection === "desc") {
-        setSortDirection(""); // Lần thứ ba sẽ trở về trạng thái unsorted
-      } else {
-        setSortDirection("asc");
-      }
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc"); // Mặc định là tăng dần khi chọn cột mới
-    }
-  };
-
-  const SortIcon = ({ sortColumn, columnName, sortDirection }) => {
-    if (sortColumn === columnName) {
-      if (sortDirection === "asc") {
-        return <FaSortDown />;
-      } else if (sortDirection === "desc") {
-        return <FaSortUp />;
-      }
-    }
-    return <FaSort />;
-  };
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -93,7 +50,7 @@ const Home = () => {
                 type="text"
                 placeholder="Tìm kiếm sách"
                 value={searchTerm}
-                onChange={handleSearch}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="bg-white px-4 py-2 pr-12 rounded-xl focus:outline-none w-full placeholder:text-neutral-400 border-[#e7e7e7] border-2"
               />
 
@@ -106,13 +63,17 @@ const Home = () => {
               </button>
             </div>
           </label>
-
-          <div className="flex justify-center items-center gap-2 bg-create-100 px-6 rounded-xl text-white hover:bg-create-200">
-            <FaPlusSquare className="h-5 w-5" />
-            <Link to="add-book" className="font-medium uppercase">
+          {/* <Link to="add-book" className="font-medium uppercase"> */}
+          <div>
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="flex justify-center items-center gap-2 bg-create-100 px-6 py-3 rounded-xl text-white hover:bg-create-200"
+            >
+              <FaPlusSquare className="h-5 w-5" />
               Sách
-            </Link>
+            </button>
           </div>
+          {/* </Link> */}
         </div>
 
         <table className="w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400 border-separate border-spacing-y-4">
@@ -181,8 +142,8 @@ const Home = () => {
             </tr>
           </thead>
           <tbody>
-            {paginatedBooks.length > 0 ? (
-              paginatedBooks.map((book) => (
+            {books.length > 0 ? (
+              books.map((book) => (
                 <tr
                   key={book.id}
                   className="bg-white dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
@@ -198,7 +159,11 @@ const Home = () => {
                         alt={book.name}
                       />
                     ) : (
-                      <>{book.coverImage}</>
+                      <img
+                        className="w-14 h-14 rounded"
+                        src={NoImage}
+                        alt="No Image"
+                      />
                     )}
                   </td>
                   <td className="px-6 py-4 border-y-2 border-neutral-200 ">
@@ -238,15 +203,19 @@ const Home = () => {
                           <EyeIcon className="size-6" />
                         </Link>
                       </button>
-                      <button className="text-neutral-400 hover:text-green-400 cursor-pointer">
+                      <button
+                        className="text-neutral-400 hover:text-green-400 cursor-pointer"
+                        onClick={() => {
+                          setSelectedBook(book);
+                          setIsEditOpen(true);
+                        }}
+                      >
                         <PencilSquareIcon className="size-6" />
                       </button>
-                      <button
-                        className="text-neutral-400 hover:text-red-400 cursor-pointer"
-                        onClick={() => {}}
-                      >
-                        <TrashIcon className="size-6" />
-                      </button>
+                      <DeleteButton
+                        itemName={book.name}
+                        onDelete={() => handleDeleteBook(book.id)}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -269,6 +238,22 @@ const Home = () => {
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />
+        {isAddOpen && (
+          <BookModal
+            isOpen={isAddOpen}
+            onClose={() => setIsAddOpen(false)}
+            type="add"
+          />
+        )}
+
+        {isEditOpen && (
+          <BookModal
+            isOpen={isEditOpen}
+            onClose={() => setIsEditOpen(false)}
+            type="edit"
+            book={selectedBook}
+          />
+        )}
       </div>
     </div>
   );

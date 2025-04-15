@@ -1,86 +1,47 @@
-import {
-  EyeIcon,
-  PencilSquareIcon,
-  TrashIcon,
-} from "@heroicons/react/24/outline";
-import { useEffect, useState } from "react";
-import { AiOutlineSearch } from "react-icons/ai";
-import { FaPlusSquare, FaSort, FaSortDown, FaSortUp } from "react-icons/fa";
-import { Link, useNavigate } from "react-router-dom";
-import PaginationComponent from "../components/ui/PaginationComponent";
 import { useQuery } from "@apollo/client";
-import { GET_BOOKS } from "../graphql/bookQueries";
+import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { useState } from "react";
+import { AiOutlineSearch } from "react-icons/ai";
+import { FaPlusSquare } from "react-icons/fa";
+import { Link } from "react-router-dom";
+import DeleteButton from "../components/modal/DeleteButton";
+import PaginationComponent from "../components/ui/PaginationComponent";
+import SortIcon from "../components/ui/SortIcon";
+import { DELETE_PUBLISHER, GET_PUBLISHERS } from "../graphql/publisher";
+import useDelete from "../hooks/useDelete";
+import { useTable } from "../hooks/useTable";
+import PublisherModal from "../components/modal/PublisherModal";
 
 const Publisher = () => {
-  const [sortColumn, setSortColumn] = useState(""); // Cột để sắp xếp
-  const [sortDirection, setSortDirection] = useState(""); // Hướng sắp xếp (asc/desc/unsorted)
-  const [currentPage, setCurrentPage] = useState(1); // Trang hiện tại
-  const [searchTerm, setSearchTerm] = useState(""); // Giá trị tìm kiếm
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedPublisher, setSelectedPublisher] = useState(null);
 
+  const { loading, error, data } = useQuery(GET_PUBLISHERS);
   const itemsPerPage = 10;
-  const { loading, error, data } = useQuery(GET_BOOKS);
+  const { handleDelete } = useDelete(
+    DELETE_PUBLISHER,
+    "publishers",
+    "Publisher"
+  );
+  const handleDeletePublisher = (id) => {
+    handleDelete(id);
+  };
+
+  const {
+    paginatedData: publishers,
+    totalItems,
+    currentPage,
+    setCurrentPage,
+    searchTerm,
+    setSearchTerm,
+    handleSort,
+    sortColumn,
+    sortDirection,
+  } = useTable(data?.publishers || [], itemsPerPage);
 
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
-
-  const filteredBooks = data.books.filter((book) =>
-    book.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
-
-  // Sắp xếp danh sách users
-  const sortedBooks = sortDirection
-    ? [...filteredBooks].sort((a, b) => {
-        const valueA = a[sortColumn]?.toLowerCase?.() || a[sortColumn];
-        const valueB = b[sortColumn]?.toLowerCase?.() || b[sortColumn];
-
-        if (sortDirection === "asc") {
-          return valueA > valueB ? 1 : -1;
-        } else if (sortDirection === "desc") {
-          return valueA < valueB ? 1 : -1;
-        }
-        return 0; // Không sắp xếp nếu ở trạng thái unsorted
-      })
-    : filteredBooks;
-
-  // Cắt danh sách users theo trang hiện tại
-  const paginatedBooks = sortedBooks.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
-
-  const totalItems = sortedBooks.length;
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset về trang 1 khi tìm kiếm
-  };
-
-  const handleSort = (column) => {
-    if (sortColumn === column) {
-      // Nếu đã click cùng cột, thay đổi hướng sắp xếp
-      if (sortDirection === "asc") {
-        setSortDirection("desc");
-      } else if (sortDirection === "desc") {
-        setSortDirection(""); // Lần thứ ba sẽ trở về trạng thái unsorted
-      } else {
-        setSortDirection("asc");
-      }
-    } else {
-      setSortColumn(column);
-      setSortDirection("asc"); // Mặc định là tăng dần khi chọn cột mới
-    }
-  };
-
-  const SortIcon = ({ sortColumn, columnName, sortDirection }) => {
-    if (sortColumn === columnName) {
-      if (sortDirection === "asc") {
-        return <FaSortDown />;
-      } else if (sortDirection === "desc") {
-        return <FaSortUp />;
-      }
-    }
-    return <FaSort />;
-  };
 
   return (
     <div className="max-w-6xl mx-auto p-4">
@@ -90,9 +51,9 @@ const Publisher = () => {
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Tìm kiếm sách"
+                placeholder="Tìm kiếm nhà xuất bản"
                 value={searchTerm}
-                onChange={handleSearch}
+                onChange={(e) => setSearchTerm(e.target.value)}
                 className="bg-white px-4 py-2 pr-12 rounded-xl focus:outline-none w-full placeholder:text-neutral-400 border-[#e7e7e7] border-2"
               />
 
@@ -105,12 +66,14 @@ const Publisher = () => {
               </button>
             </div>
           </label>
-
-          <div className="flex justify-center items-center gap-2 bg-create-100 px-6 rounded-xl text-white hover:bg-create-200">
-            <FaPlusSquare className="h-5 w-5" />
-            <Link to="add-book" className="font-medium uppercase">
-              Sách
-            </Link>
+          <div>
+            <button
+              onClick={() => setIsAddOpen(true)}
+              className="flex justify-center items-center gap-2 bg-create-100 px-6 py-3 rounded-xl text-white hover:bg-create-200"
+            >
+              <FaPlusSquare className="h-5 w-5" />
+              Nhà Xuất Bản
+            </button>
           </div>
         </div>
 
@@ -123,21 +86,7 @@ const Publisher = () => {
                 onClick={() => handleSort("name")}
               >
                 <div className="flex items-center space-x-2">
-                  {/* <span></span>
-                      <SortIcon
-                        sortColumn={sortColumn}
-                        columnName="name"
-                        sortDirection={sortDirection}
-                      /> */}
-                </div>
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 cursor-pointer"
-                onClick={() => handleSort("name")}
-              >
-                <div className="flex items-center space-x-2">
-                  <span>Sách</span>
+                  <span>Nhà xuất bản</span>
                   <SortIcon
                     sortColumn={sortColumn}
                     columnName="name"
@@ -145,30 +94,17 @@ const Publisher = () => {
                   />
                 </div>
               </th>
+
               <th
                 scope="col"
-                className="px-6 py-3 cursor-pointer"
-                onClick={() => handleSort("author")}
+                className="px-6 py-3 rounded-l-xl cursor-pointer"
+                onClick={() => handleSort("location")}
               >
                 <div className="flex items-center space-x-2">
-                  <span>Thể loại</span>
+                  <span>Địa chỉ</span>
                   <SortIcon
                     sortColumn={sortColumn}
-                    columnName="author"
-                    sortDirection={sortDirection}
-                  />
-                </div>
-              </th>
-              <th
-                scope="col"
-                className="px-6 py-3 cursor-pointer"
-                onClick={() => handleSort("publisher")}
-              >
-                <div className="flex items-center space-x-2">
-                  <span>Tác giả</span>
-                  <SortIcon
-                    sortColumn={sortColumn}
-                    columnName="publisher"
+                    columnName="location"
                     sortDirection={sortDirection}
                   />
                 </div>
@@ -179,71 +115,40 @@ const Publisher = () => {
               </th>
             </tr>
           </thead>
+
           <tbody>
-            {paginatedBooks.length > 0 ? (
-              paginatedBooks.map((book) => (
+            {publishers.length > 0 ? (
+              publishers.map((publisher) => (
                 <tr
-                  key={book.id}
-                  className="bg-white dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
+                  key={publisher.id}
+                  className="bg-white dark:bg-gray-800 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600"
                 >
-                  <td
-                    scope="row"
-                    className="flex items-center px-6 py-4 text-gray-900 whitespace-nowrap dark:text-white border-y-2 border-neutral-200 rounded-l-xl border-l-2"
-                  >
-                    {book.coverImage ? (
-                      <img
-                        className="w-14 h-14 rounded"
-                        src={book.coverImage}
-                        alt={book.name}
-                      />
-                    ) : (
-                      <>{book.coverImage}</>
-                    )}
-                  </td>
-                  <td className="px-6 py-4 border-y-2 border-neutral-200 ">
-                    <div className="ps-3">
-                      <div
-                        className="text-base font-semibold"
-                        title={book.name}
-                      >
-                        {book.name}
-                      </div>
+                  <td className="px-6 py-4 text-gray-900 dark:text-white border-y-2 border-neutral-200 rounded-l-xl border-l-2">
+                    <div className="text-gray-500" title={publisher.name}>
+                      {publisher.name}
                     </div>
                   </td>
 
                   <td className="px-6 py-4 border-y-2 border-neutral-200 ">
-                    {book.genre}
-                  </td>
-
-                  <td className="px-6 py-4 border-y-2 border-neutral-200 ">
-                    <div
-                      className="font-normal text-gray-500"
-                      style={{
-                        maxWidth: "150px",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
-                      }}
-                      title={book.author?.name}
-                    >
-                      {book.author?.name}
-                    </div>
+                    {publisher.location}
                   </td>
 
                   <td className="px-6 py-4 border-y-2 border-neutral-200 border-r-2 rounded-r-xl">
                     <div className="flex flex-row gap-3 justify-center items-center">
-                      <button className="text-neutral-400 hover:text-blue-400 cursor-pointer">
-                        <EyeIcon className="size-6" />
-                      </button>
-                      <button className="text-neutral-400 hover:text-green-400 cursor-pointer">
+                      <button
+                        className="text-neutral-400 hover:text-green-400 cursor-pointer"
+                        onClick={() => {
+                          setSelectedPublisher(publisher);
+                          setIsEditOpen(true);
+                        }}
+                      >
                         <PencilSquareIcon className="size-6" />
                       </button>
-                      <button
-                        className="text-neutral-400 hover:text-red-400 cursor-pointer"
-                        onClick={() => {}}
-                      >
-                        <TrashIcon className="size-6" />
-                      </button>
+
+                      <DeleteButton
+                        itemName={publisher.name}
+                        onDelete={() => handleDeletePublisher(publisher.id)}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -251,10 +156,10 @@ const Publisher = () => {
             ) : (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="2"
                   className="text-center py-4 text-gray-500 dark:text-gray-400"
                 >
-                  Không có người dùng nào để hiển thị.
+                  Không có nhà xuất bản nào để hiển thị.
                 </td>
               </tr>
             )}
@@ -266,6 +171,22 @@ const Publisher = () => {
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
         />
+        {isAddOpen && (
+          <PublisherModal
+            isOpen={isAddOpen}
+            onClose={() => setIsAddOpen(false)}
+            type="add"
+          />
+        )}
+
+        {isEditOpen && (
+          <PublisherModal
+            isOpen={isEditOpen}
+            onClose={() => setIsEditOpen(false)}
+            type="edit"
+            publisher={selectedPublisher}
+          />
+        )}
       </div>
     </div>
   );
