@@ -22,7 +22,7 @@ const Layout = () => {
   return (
     <div className="min-h-screen flex flex-col md:flex-row relative">
       <div
-        className={`bg-secondary w-64 min-h-screen text-white absolute md:relative transform ${
+        className={`bg-secondary w-64 min-h-screen text-white absolute md:relative hidden md:block transform ${
           isSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } transition-transform duration-300 md:translate-x-0 md:static md:block z-20`}
       >

@@ -43,7 +43,7 @@ const PublisherModal = ({ isOpen, onClose, type = "add", publisher }) => {
         toast.success("Cập nhật nhà xuất bản thành công!");
       }
       onClose();
-    } catch (error) {
+    } catch {
       toast.error(
         `Lỗi khi ${type === "add" ? "thêm" : "cập nhật"} nhà xuất bản!`
       );

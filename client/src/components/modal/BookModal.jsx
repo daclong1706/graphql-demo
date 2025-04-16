@@ -33,7 +33,7 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
   const [updateBook] = useMutation(UPDATE_BOOK, {
     refetchQueries: [{ query: GET_BOOKS }],
   });
-  console.log(book);
+
   // Cập nhật dữ liệu sách khi sửa
   useEffect(() => {
     if (type === "edit" && book) {
@@ -82,7 +82,7 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
         toast.success("Cập nhật sách thành công!");
       }
       onClose(); // Đóng modal
-    } catch (error) {
+    } catch {
       toast.error(`Lỗi khi ${type === "add" ? "thêm" : "cập nhật"} sách!`);
     }
   };
@@ -143,11 +143,15 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
                   className="w-full p-2 border rounded-xl border-neutral-300 focus:border-neutral-400 focus:border-2 focus:outline-none h-10"
                 >
                   <option value="">Chọn tác giả</option>
-                  {authorsData.authors.map((author) => (
-                    <option key={author.id} value={author.id}>
-                      {author.name}
-                    </option>
-                  ))}
+                  {authorsData.authors
+                    ? [...authorsData.authors]
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((author) => (
+                          <option key={author.id} value={author.id}>
+                            {author.name}
+                          </option>
+                        ))
+                    : null}
                 </select>
               </div>
 
@@ -167,11 +171,15 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
                   className="w-full p-2 border rounded-xl border-neutral-300 focus:border-neutral-400 focus:border-2 focus:outline-none h-10"
                 >
                   <option value="">Chọn nhà xuất bản</option>
-                  {publishersData.publishers.map((publisher) => (
-                    <option key={publisher.id} value={publisher.id}>
-                      {publisher.name}
-                    </option>
-                  ))}
+                  {publishersData.publishers
+                    ? [...publishersData.publishers]
+                        .sort((a, b) => a.name.localeCompare(b.name))
+                        .map((publisher) => (
+                          <option key={publisher.id} value={publisher.id}>
+                            {publisher.name}
+                          </option>
+                        ))
+                    : null}
                 </select>
               </div>
 

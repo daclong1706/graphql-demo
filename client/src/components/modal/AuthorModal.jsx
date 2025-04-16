@@ -53,7 +53,7 @@ const AuthorModal = ({ isOpen, onClose, type = "add", author }) => {
         toast.success("Cập nhật tác giả thành công!");
       }
       onClose();
-    } catch (error) {
+    } catch {
       toast.error(`Lỗi khi ${type === "add" ? "thêm" : "cập nhật"} tác giả!`);
     }
   };
