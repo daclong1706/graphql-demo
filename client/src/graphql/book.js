@@ -7,14 +7,16 @@ export const GET_BOOKS = gql`
       id
       name
       genre
-      author {
+      authors {
         id
         name
       }
-      publisher {
+      publishers {
         id
+        name
       }
       coverImage
+      description
     }
   }
 `;
@@ -26,13 +28,16 @@ export const GET_BOOK_BY_ID = gql`
       id
       name
       genre
-      author {
+      authors {
+        id
         name
       }
-      publisher {
+      publishers {
+        id
         name
       }
       coverImage
+      description
     }
   }
 `;
@@ -40,21 +45,30 @@ export const GET_BOOK_BY_ID = gql`
 export const ADD_BOOK = gql`
   mutation addBook(
     $name: String!
-    $authorId: ID!
-    $publisherId: ID!
+    $authorIds: [ID!]! # Mảng ID
+    $publisherIds: [ID!]! # Mảng ID
     $genre: String
     $coverImage: String
     $description: String
   ) {
     addBook(
       name: $name
-      authorId: $authorId
-      publisherId: $publisherId
+      authorIds: $authorIds
+      publisherIds: $publisherIds
       genre: $genre
       coverImage: $coverImage
       description: $description
     ) {
       id
+      name
+      authors {
+        id
+        name
+      }
+      publishers {
+        id
+        name
+      }
     }
   }
 `;
@@ -63,8 +77,8 @@ export const UPDATE_BOOK = gql`
   mutation updateBook(
     $id: ID!
     $name: String
-    $authorId: ID!
-    $publisherId: ID!
+    $authorIds: [ID!] # Mảng ID
+    $publisherIds: [ID!] # Mảng ID
     $genre: String
     $coverImage: String
     $description: String
@@ -72,13 +86,22 @@ export const UPDATE_BOOK = gql`
     updateBook(
       id: $id
       name: $name
-      authorId: $authorId
-      publisherId: $publisherId
+      authorIds: $authorIds
+      publisherIds: $publisherIds
       genre: $genre
       coverImage: $coverImage
       description: $description
     ) {
       id
+      name
+      authors {
+        id
+        name
+      }
+      publishers {
+        id
+        name
+      }
     }
   }
 `;

@@ -3,8 +3,8 @@ export const typeDefs = `#graphql
         id: ID!
         name: String!
         genre: String
-        author: Author
-        publisher: Publisher
+        authors: [Author] 
+        publishers: [Publisher] 
         coverImage: String
         description: String
     }
@@ -13,7 +13,7 @@ export const typeDefs = `#graphql
         id: ID!
         name: String!
         yearOfBirth: Int
-        books: [Book]
+        books: [Book] 
     }
 
     type Publisher {
@@ -36,8 +36,8 @@ export const typeDefs = `#graphql
         addBook(
             name: String!,
             genre: String,
-            authorId: ID!,
-            publisherId: ID!,
+            authorIds: [ID!],
+            publisherIds: [ID!], 
             coverImage: String
             description: String
         ): Book
@@ -56,8 +56,8 @@ export const typeDefs = `#graphql
             id: ID!,
             name: String,
             genre: String,
-            authorId: ID,
-            publisherId: ID,
+            authorIds: [ID],
+            publisherIds: [ID],
             coverImage: String
             description: String
         ): Book
@@ -77,6 +77,5 @@ export const typeDefs = `#graphql
         deleteBook(id: ID!): Book
         deleteAuthor(id: ID!): Author
         deletePublisher(id: ID!): Publisher
-
     }
 `;

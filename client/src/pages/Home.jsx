@@ -12,11 +12,14 @@ import { useTable } from "../hooks/useTable";
 import { useState } from "react";
 import BookModal from "../components/modal/BookModal";
 import NoImage from "../assets/no-image.png";
+import BookModalDetail from "./BookModalDetail";
 
 const Home = () => {
+  const [isViewOpen, setIsViewOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
+  const [selectedBookId, setSelectedBookId] = useState(null);
 
   const { loading, error, data } = useQuery(GET_BOOKS);
   const itemsPerPage = 10;
@@ -198,10 +201,14 @@ const Home = () => {
 
                   <td className="px-6 py-4 border-y-2 border-neutral-200 border-r-2 rounded-r-xl">
                     <div className="flex flex-row gap-3 justify-center items-center">
-                      <button className="text-neutral-400 hover:text-blue-400 cursor-pointer">
-                        <Link to={`/book/${book.id}`}>
-                          <EyeIcon className="size-6" />
-                        </Link>
+                      <button
+                        className="text-neutral-400 hover:text-blue-400 cursor-pointer"
+                        onClick={() => {
+                          setSelectedBookId(book.id);
+                          setIsViewOpen(true);
+                        }}
+                      >
+                        <EyeIcon className="size-6" />
                       </button>
                       <button
                         className="text-neutral-400 hover:text-green-400 cursor-pointer"
@@ -252,6 +259,13 @@ const Home = () => {
             onClose={() => setIsEditOpen(false)}
             type="edit"
             book={selectedBook}
+          />
+        )}
+        {isViewOpen && (
+          <BookModalDetail
+            isOpen={isViewOpen}
+            onClose={() => setIsViewOpen(false)}
+            bookId={selectedBookId}
           />
         )}
       </div>

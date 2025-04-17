@@ -1,57 +1,3 @@
-// const Author = [
-//   { id: "A1", name: "J.K. Rowling", age: 57, books: [] },
-//   { id: "A2", name: "George R.R. Martin", age: 74, books: [] },
-//   { id: "A3", name: "J.R.R. Tolkien", age: 81, books: [] },
-// ];
-
-// const Publisher = [
-//   { id: "P1", name: "Bloomsbury", location: "London, UK", books: [] },
-//   { id: "P2", name: "Bantam Books", location: "New York, USA", books: [] },
-//   { id: "P3", name: "Allen & Unwin", location: "Sydney, Australia", books: [] },
-// ];
-
-// const Book = [
-//   {
-//     id: "B1",
-//     name: "Harry Potter and the Philosopher's Stone",
-//     genre: "Fantasy",
-//     description: "The first book in the Harry Potter series.",
-//     publicationDate: "1997-06-26",
-//     author: "A1",
-//     publisher: "P1",
-//     isbn: "9780747532699",
-//     price: 19.99,
-//     stockQuantity: 100,
-//     coverImage: "https://example.com/harrypotter1.jpg",
-//   },
-//   {
-//     id: "B2",
-//     name: "A Game of Thrones",
-//     genre: "Fantasy",
-//     description: "The first book in A Song of Ice and Fire series.",
-//     publicationDate: "1996-08-06",
-//     author: "A2",
-//     publisher: "P2",
-//     isbn: "9780553103540",
-//     price: 24.99,
-//     stockQuantity: 50,
-//     coverImage: "https://example.com/got1.jpg",
-//   },
-//   {
-//     id: "B3",
-//     name: "The Fellowship of the Ring",
-//     genre: "Fantasy",
-//     description: "The first book in The Lord of the Rings trilogy.",
-//     publicationDate: "1954-07-29",
-//     author: "A3",
-//     publisher: "P3",
-//     isbn: "9780345339706",
-//     price: 29.99,
-//     stockQuantity: 30,
-//     coverImage: "https://example.com/lotr1.jpg",
-//   },
-// ];
-
 export const resolvers = {
   Query: {
     books: async (_, __, { bookService }) => await bookService.getBooks(),
@@ -69,67 +15,77 @@ export const resolvers = {
       await publisherService.getPublisherById(id),
   },
   Mutation: {
-    addBook: async (_, args, { bookService }) =>
-      await bookService.addBook(args),
-    addAuthor: async (_, args, { authorService }) =>
-      await authorService.addAuthor(args),
-    addPublisher: async (_, args, { publisherService }) => {
-      await publisherService.addPublisher(args);
+    // Thêm sách mới với nhiều tác giả và nhà sản xuất
+    addBook: async (
+      _,
+      { authorIds, publisherIds, ...args },
+      { bookService }
+    ) => {
+      return await bookService.addBook({
+        ...args,
+        authors: authorIds,
+        publishers: publisherIds,
+      });
     },
 
     updateBook: async (
       _,
-      { id, name, genre, authorId, publisherId, coverImage, description },
+      { id, authorIds, publisherIds, ...updateData },
       { bookService }
     ) => {
       return await bookService.updateBook(id, {
-        name,
-        genre,
-        authorId,
-        publisherId,
-        coverImage,
-        description,
+        ...updateData,
+        authors: authorIds,
+        publishers: publisherIds,
       });
     },
 
-    updateAuthor: async (_, { id, name, yearOfBirth }, { authorService }) => {
-      return await authorService.updateAuthor(id, { name, yearOfBirth });
-    },
+    addAuthor: async (_, args, { authorService }) =>
+      await authorService.addAuthor(args),
 
-    updatePublisher: async (
-      _,
-      { id, name, location },
-      { publisherService }
-    ) => {
-      return await publisherService.updatePublisher(id, { name, location });
-    },
+    addPublisher: async (_, args, { publisherService }) =>
+      await publisherService.addPublisher(args),
 
-    deleteBook: async (_, { id }, { bookService }) => {
-      return await bookService.deleteBook(id);
-    },
+    updateAuthor: async (_, { id, name, yearOfBirth }, { authorService }) =>
+      await authorService.updateAuthor(id, { name, yearOfBirth }),
 
-    deleteAuthor: async (_, { id }, { authorService }) => {
-      return await authorService.deleteAuthor(id);
-    },
+    updatePublisher: async (_, { id, name, location }, { publisherService }) =>
+      await publisherService.updatePublisher(id, { name, location }),
 
-    deletePublisher: async (_, { id }, { publisherService }) => {
-      return await publisherService.deletePublisher(id);
-    },
+    deleteBook: async (_, { id }, { bookService }) =>
+      await bookService.deleteBook(id),
+
+    deleteAuthor: async (_, { id }, { authorService }) =>
+      await authorService.deleteAuthor(id),
+
+    deletePublisher: async (_, { id }, { publisherService }) =>
+      await publisherService.deletePublisher(id),
   },
   Book: {
-    author: async (book, _, { authorService }) => {
-      return await authorService.getAuthorById(book.authorId);
+    authors: async (book, _, { authorService }) => {
+      // `book.authors` sẽ chứa các ObjectIds, cần lấy chi tiết từ service
+      return await Promise.all(
+        book.authors.map((id) => authorService.getAuthorById(id))
+      );
     },
-    publisher: async (book, _, { publisherService }) => {
-      return await publisherService.getPublisherById(book.publisherId);
+
+    publishers: async (book, _, { publisherService }) => {
+      // `book.publishers` sẽ chứa các ObjectIds, cần lấy chi tiết từ service
+      return await Promise.all(
+        book.publishers.map((id) => publisherService.getPublisherById(id))
+      );
     },
   },
+
   Author: {
+    // Lấy danh sách các sách mà tác giả đã viết
     books: async (author, _, { bookService }) => {
       return await bookService.getBooksByAuthor(author.id);
     },
   },
+
   Publisher: {
+    // Lấy danh sách các sách mà nhà sản xuất đã xuất bản
     books: async (publisher, _, { bookService }) => {
       return await bookService.getBooksByPublisher(publisher.id);
     },

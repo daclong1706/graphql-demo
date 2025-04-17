@@ -4,6 +4,8 @@ import { GET_AUTHORS_NAME } from "../../graphql/author";
 import { GET_PUBLISHERS_NAME } from "../../graphql/publisher";
 import { ADD_BOOK, UPDATE_BOOK, GET_BOOKS } from "../../graphql/book";
 import { toast } from "sonner";
+import AuthorSelect from "../ui/MultiSelect";
+import MultiSelect from "../ui/MultiSelect";
 
 const BookModal = ({ isOpen, onClose, type = "add", book }) => {
   const {
@@ -20,8 +22,8 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
   const [formData, setFormData] = useState({
     name: "",
     genre: "",
-    author: "",
-    publisher: "",
+    authors: [],
+    publishers: [],
     coverImage: "",
     description: "",
   });
@@ -36,20 +38,31 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
 
   // Cập nhật dữ liệu sách khi sửa
   useEffect(() => {
-    if (type === "edit" && book) {
+    if (type === "edit" && book && isOpen) {
       setFormData({
         name: book.name || "",
         genre: book.genre || "",
-        author: book.author?.id || "",
-        publisher: book.publisher?.id || "",
+        authors: book.authors ? book.authors.map((author) => author.id) : [],
+        publishers: book.publishers
+          ? book.publishers.map((publisher) => publisher.id)
+          : [],
         coverImage: book.coverImage || "",
         description: book.description || "",
       });
     }
-  }, [type, book]);
+  }, [type, book, isOpen]);
 
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+
+    if (e.target.multiple) {
+      setFormData({
+        ...formData,
+        [name]: [...e.target.selectedOptions].map((option) => option.value),
+      });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -59,8 +72,8 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
         await addBook({
           variables: {
             name: formData.name,
-            authorId: formData.author,
-            publisherId: formData.publisher,
+            authorIds: formData.authors,
+            publisherIds: formData.publishers,
             genre: formData.genre,
             coverImage: formData.coverImage,
             description: formData.description,
@@ -72,8 +85,8 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
           variables: {
             id: book.id,
             name: formData.name,
-            authorId: formData.author,
-            publisherId: formData.publisher,
+            authorIds: formData.authors,
+            publisherIds: formData.publishers,
             genre: formData.genre,
             coverImage: formData.coverImage,
             description: formData.description,
@@ -94,7 +107,7 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
   return (
     <>
       {isOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md overflow-y-auto py-5">
           <div className="max-w-3xl w-full bg-white px-8 py-6 rounded-lg shadow-lg">
             <h2 className="text-2xl font-bold mb-4 text-center text-black">
               {type === "add" ? "Thêm sách mới" : "Sửa sách"}
@@ -128,60 +141,21 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
               </div>
 
               {/* Tác giả */}
-              <div className="flex-1">
-                <label
-                  htmlFor="authorSelect"
-                  className="block font-medium mb-1"
-                >
-                  Tác giả
-                </label>
-                <select
-                  id="authorSelect"
-                  name="author"
-                  value={formData.author}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-xl border-neutral-300 focus:border-neutral-400 focus:border-2 focus:outline-none h-10"
-                >
-                  <option value="">Chọn tác giả</option>
-                  {authorsData.authors
-                    ? [...authorsData.authors]
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((author) => (
-                          <option key={author.id} value={author.id}>
-                            {author.name}
-                          </option>
-                        ))
-                    : null}
-                </select>
-              </div>
+              <MultiSelect
+                data={authorsData.authors}
+                formData={formData}
+                setFormData={setFormData}
+                name="authors"
+                label="Tác giả"
+              />
 
-              {/* Nhà xuất bản */}
-              <div className="flex-1">
-                <label
-                  htmlFor="publisherSelect"
-                  className="block font-medium mb-1"
-                >
-                  Nhà xuất bản
-                </label>
-                <select
-                  id="publisherSelect"
-                  name="publisher"
-                  value={formData.publisher}
-                  onChange={handleChange}
-                  className="w-full p-2 border rounded-xl border-neutral-300 focus:border-neutral-400 focus:border-2 focus:outline-none h-10"
-                >
-                  <option value="">Chọn nhà xuất bản</option>
-                  {publishersData.publishers
-                    ? [...publishersData.publishers]
-                        .sort((a, b) => a.name.localeCompare(b.name))
-                        .map((publisher) => (
-                          <option key={publisher.id} value={publisher.id}>
-                            {publisher.name}
-                          </option>
-                        ))
-                    : null}
-                </select>
-              </div>
+              <MultiSelect
+                data={publishersData.publishers}
+                formData={formData}
+                setFormData={setFormData}
+                name="publishers"
+                label="Nhà xuất bản"
+              />
 
               {/* Ảnh bìa */}
               <div>
@@ -200,7 +174,7 @@ const BookModal = ({ isOpen, onClose, type = "add", book }) => {
                 <label className="block font-medium mb-1">Mô tả</label>
                 <textarea
                   name="description"
-                  rows="4"
+                  rows="3"
                   className="w-full p-2 border rounded-xl border-neutral-300 focus:border-neutral-400 focus:border-2 focus:outline-none"
                   value={formData.description}
                   onChange={handleChange}
