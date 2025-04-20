@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { PencilSquareIcon } from "@heroicons/react/24/outline";
+import { EyeIcon, PencilSquareIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaPlusSquare } from "react-icons/fa";
@@ -135,6 +135,14 @@ const Publisher = () => {
 
                   <td className="px-6 py-4 border-y-2 border-neutral-200 border-r-2 rounded-r-xl">
                     <div className="flex flex-row gap-3 justify-center items-center">
+                      <Link
+                        key={publisher.id}
+                        to={`/publisher/${publisher.id}`}
+                      >
+                        <button className="text-neutral-400 hover:text-blue-400 cursor-pointer">
+                          <EyeIcon className="size-6" />
+                        </button>
+                      </Link>
                       <button
                         className="text-neutral-400 hover:text-green-400 cursor-pointer"
                         onClick={() => {

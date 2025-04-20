@@ -184,18 +184,20 @@ const Home = () => {
                     {book.genre}
                   </td>
 
-                  <td className="px-6 py-4 border-y-2 border-neutral-200 ">
+                  <td className="px-6 py-4 border-y-2 border-neutral-200">
                     <div
                       className="font-normal text-gray-500"
                       style={{
-                        maxWidth: "150px",
+                        maxWidth: "250px",
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
                       }}
-                      title={book.author?.name}
+                      title={book.authors
+                        ?.map((author) => author.name)
+                        .join(", ")}
                     >
-                      {book.author?.name}
+                      {book.authors?.map((author) => author.name).join(", ")}
                     </div>
                   </td>
 

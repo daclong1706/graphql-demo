@@ -90,7 +90,6 @@ const AuthorModal = ({ isOpen, onClose, type = "add", author }) => {
               className="w-full p-2 border rounded-xl border-neutral-300 focus:border-neutral-400 focus:border-2 focus:outline-none"
               value={formData.yearOfBirth}
               onChange={handleChange}
-              required
             />
           </div>
           <div className="flex justify-end gap-4">

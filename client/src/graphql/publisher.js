@@ -21,12 +21,16 @@ export const GET_PUBLISHERS_NAME = gql`
 `;
 
 // Query để lấy thông tin chi tiết của một cuốn sách theo ID
-export const GET_PUBLISHERS_BY_ID = gql`
+export const GET_PUBLISHER_BY_ID = gql`
   query GetPublisherById($id: ID!) {
     publisher(id: $id) {
       id
       name
       location
+      books {
+        id
+        name
+      }
     }
   }
 `;

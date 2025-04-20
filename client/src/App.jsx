@@ -6,6 +6,8 @@ import Publisher from "./pages/Publisher";
 import client from "./graphql/apolloClient";
 import { ApolloProvider } from "@apollo/client";
 import { Toaster } from "sonner";
+import AuthorDetail from "./pages/AuthorDetail";
+import PublisherDetail from "./pages/PublisherDetail";
 
 const App = () => {
   return (
@@ -16,7 +18,9 @@ const App = () => {
           <Route path="/" element={<Layout />}>
             <Route index element={<Home />} />
             <Route path="author" element={<Author />} />
+            <Route path="author/:id" element={<AuthorDetail />} />
             <Route path="publisher" element={<Publisher />} />
+            <Route path="publisher/:id" element={<PublisherDetail />} />
           </Route>
         </Routes>
       </BrowserRouter>

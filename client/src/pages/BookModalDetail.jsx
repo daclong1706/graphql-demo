@@ -1,20 +1,20 @@
 import React from "react";
 import { useQuery } from "@apollo/client";
 import { GET_BOOK_BY_ID } from "../graphql/book";
+import { useNavigate } from "react-router-dom";
 
 const BookModalDetail = ({ isOpen, onClose, bookId }) => {
+  const navigate = useNavigate();
   const { loading, error, data } = useQuery(GET_BOOK_BY_ID, {
     variables: { id: bookId },
     skip: !bookId,
   });
 
   if (!isOpen) return null;
-
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error.message}</p>;
 
-  const book = data.book;
-  console.log("ok");
+  const book = data?.book;
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-md">
@@ -33,7 +33,7 @@ const BookModalDetail = ({ isOpen, onClose, bookId }) => {
               <img
                 src={book.coverImage}
                 alt={book.name}
-                className="rounded shadow-lg min-h-96 max-h-[450px]"
+                className="rounded shadow-lg min-h-96 max-h-[450px] min-w-80"
               />
             ) : (
               <div className="rounded shadow-lg min-h-96 px-16">
@@ -50,13 +50,30 @@ const BookModalDetail = ({ isOpen, onClose, bookId }) => {
             </p>
             <p className="text-neutral-700 mb-2">
               <strong>Tác giả:</strong>{" "}
-              {book.authors?.map((author) => author.name).join(", ") ||
-                "Unknown"}
+              {book.authors?.map((author) => (
+                <span
+                  key={author.id}
+                  className="text-blue-500 cursor-pointer hover:underline mr-2"
+                  onClick={() => navigate(`/author/${author.id}`)}
+                >
+                  {author.name}
+                </span>
+              ))}
             </p>
             <p className="text-neutral-700">
               <strong>Nhà xuất bản:</strong>{" "}
-              {book.publishers?.map((publisher) => publisher.name).join(", ") ||
-                "Unknown"}
+              {book.publishers?.map((publisher) => (
+                <span
+                  key={publisher.id}
+                  className="text-green-500 cursor-pointer hover:underline mr-2"
+                  onClick={() => navigate(`/publisher/${publisher.id}`)}
+                >
+                  {publisher.name}
+                </span>
+              ))}
+            </p>
+            <p className="text-neutral-700">
+              <strong>Mô tả:</strong> {book.description}
             </p>
           </div>
         </div>

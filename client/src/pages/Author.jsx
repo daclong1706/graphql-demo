@@ -1,5 +1,9 @@
 import { useQuery } from "@apollo/client";
-import { PencilSquareIcon, TrashIcon } from "@heroicons/react/24/outline";
+import {
+  EyeIcon,
+  PencilSquareIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import { AiOutlineSearch } from "react-icons/ai";
 import { FaPlusSquare } from "react-icons/fa";
 import { Link } from "react-router-dom";
@@ -131,6 +135,12 @@ const Author = () => {
 
                   <td className="px-6 py-4 border-y-2 border-neutral-200 border-r-2 rounded-r-xl">
                     <div className="flex flex-row gap-3 justify-center items-center">
+                      <Link key={author.id} to={`/author/${author.id}`}>
+                        <button className="text-neutral-400 hover:text-blue-400 cursor-pointer">
+                          <EyeIcon className="size-6" />
+                        </button>
+                      </Link>
+
                       <button
                         className="text-neutral-400 hover:text-green-400 cursor-pointer"
                         onClick={() => {

@@ -43,7 +43,7 @@ const Sidebar = () => {
               : "text-white hover:bg-white hover:text-secondary p-3 pl-6 rounded-l-3xl flex items-center space-x-2 transition duration-300"
           }
         >
-          <span>Nhà sản xuất</span>
+          <span>Nhà xuất bản</span>
         </NavLink>
       </nav>
     </div>

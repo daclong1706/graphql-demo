@@ -56,7 +56,7 @@ const MultiSelect = ({ data, formData, setFormData, name, label }) => {
           const item = data.find((i) => i.id === id);
           return (
             <div
-              key={`${id}-${index}`} // Thêm index để đảm bảo key là duy nhất
+              key={`${id}-${index}`}
               className="px-3 py-1 bg-gray-200 rounded-lg flex items-center gap-2"
             >
               <span>{item?.name}</span>
